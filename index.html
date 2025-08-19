@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>메뉴 룰렛</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    canvas {
+      border: 5px solid #333;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽 메뉴 룰렛 🍽</h1>
+  <canvas id="wheel" width="400" height="400"></canvas><br>
+  <button onclick="spin()">돌리기</button>
+  <p id="result"></p>
+
+  <script>
+    const menus = ["피자", "치킨", "햄버거", "초밥", "떡볶이", "라면"];
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const radius = canvas.width / 2;
+    let angle = 0;
+    let spinning = false;
+
+    function drawWheel() {
+      const sliceAngle = (2 * Math.PI) / menus.length;
+      menus.forEach((menu, i) => {
+        const startAngle = i * sliceAngle;
+        const endAngle = (i + 1) * sliceAngle;
+
+        // 색상 번갈아 넣기
+        ctx.fillStyle = i % 2 === 0 ? "#FFDD57" : "#FF6B6B";
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fill();
+
+        // 글자 쓰기
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#333";
+        ctx.font = "18px Arial";
+        ctx.fillText(menu, radius - 10, 5);
+        ctx.restore();
+      });
+    }
+
+    function spin() {
+      if (spinning) return;
+      spinning = true;
+
+      const spinAngle = Math.random() * 2000 + 2000; // 돌릴 각도
+      const spinTime = 4000; // 4초간 회전
+      const start = Date.now();
+
+      function animate() {
+        const now = Date.now();
+        const elapsed = now - start;
+        if (elapsed < spinTime) {
+          angle = (spinAngle * (elapsed / spinTime) ** 0.7) % (2 * Math.PI);
+          render();
+          requestAnimationFrame(animate);
+        } else {
+          angle = spinAngle % (2 * Math.PI);
+          render();
+          showResult();
+          spinning = false;
+        }
+      }
+      animate();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(radius, radius);
+      ctx.rotate(angle);
+      ctx.translate(-radius, -radius);
+      drawWheel();
+      ctx.restore();
+
+      // 화살표 표시
+      ctx.fillStyle = "#333";
+      ctx.beginPath();
+      ctx.moveTo(radius - 10, 10);
+      ctx.lineTo(radius + 10, 10);
+      ctx.lineTo(radius, 40);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function showResult() {
+      const sliceAngle = (2 * Math.PI) / menus.length;
+      const index = Math.floor((menus.length - (angle / sliceAngle)) % menus.length);
+      document.getElementById("result").textContent = "오늘의 선택은 🎉 " + menus[index] + " 🎉 입니다!";
+    }
+
+    render();
+  </script>
+</body>
+</html>
