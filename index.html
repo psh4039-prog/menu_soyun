@@ -182,10 +182,16 @@
     }
 
     function showResult() {
-      const sliceAngle = (2 * Math.PI) / menus.length;
-      const index = Math.floor((menus.length - (angle / sliceAngle)) % menus.length);
-      document.getElementById("result").textContent =
-        "오늘의 선택은 🎉 " + menus[index] + " 🎉 입니다!";
+  const sliceAngle = (2 * Math.PI) / menus.length;
+
+  // 현재 룰렛의 각도를 0~2π 범위로 맞춤
+  let adjustedAngle = (2 * Math.PI - (angle % (2 * Math.PI))) % (2 * Math.PI);
+
+  // 몇 번째 조각에 걸렸는지 계산
+  const index = Math.floor(adjustedAngle / sliceAngle);
+
+  document.getElementById("result").textContent =
+    "오늘의 선택은 🎉 " + menus[index] + " 🎉 입니다!";
     }
 
     render();
@@ -193,3 +199,4 @@
   </script>
 </body>
 </html>
+
